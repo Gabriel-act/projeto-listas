@@ -21,12 +21,37 @@ form.addEventListener('submit', (event) => {
         title: taskTitle,
         done: false,
     })
+    localStorage.setItem('tasks', JSON.stringify(tasks))
 
     // Adicionando a nova tarefa no HTML de forma dinâmica
     const li = document.createElement('li')
 
     const input = document.createElement('input')
     input.setAttribute('type', 'checkbox')
+    // Adicionando o evento check/checked
+    input.addEventListener('change', (event) => {
+        const liToToggle = event.target.parentElement
+        const spanToToggle = liToToggle.querySelector('span')
+        const done = event.target.checked
+        if (done) {
+            spanToToggle.style.textDecoration = 'line-through'
+        } else {
+            spanToToggle.style.textDecoration = 'none'
+        }
+        // Além de alterar o HTML, é necessário alterar o array também
+        // Utilizar o map para alterar o done dentro do array
+        // Atribuir o novo array ao array tasks novamente
+        tasks = tasks.map(t => {
+            if (t.title === spanToToggle.textContent) {
+                return {
+                    title: t.title,
+                    done: !t.done,
+                }
+            }
+            return t
+        })
+        localStorage.setItem('tasks', JSON.stringify(tasks))
+    })
 
     const span = document.createElement('span')
     span.textContent = taskTitle
@@ -38,16 +63,15 @@ form.addEventListener('submit', (event) => {
     button.addEventListener('click', (event) => {
         // Removendo o elemento Pai (HTML), que no caso é a tag li
         // É necessário remover também, o objeto criado dentro do array tasks
-        // Passo1: Criar uma variável para atribuir o evento
+        // Passo1: Criar uma variável para atribuir o evento, com target na tag Pai
         // Passo2: Criar uma variável para atribuir o nome da tarefa (span)
         // Passo3: Utilizando o filter, gerar um novo array sem a tarefa removida
         const toRemove = event.target.parentElement
         const titleRemove = toRemove.querySelector('span').textContent
         tasks = tasks.filter(t => t.title !== titleRemove)
         todoListsUl.removeChild(toRemove)
+        localStorage.setItem('tasks', JSON.stringify(tasks))
     })
-
-    // Parou em 57'
 
     li.appendChild(input)
     li.appendChild(span)
